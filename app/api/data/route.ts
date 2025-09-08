@@ -11,17 +11,38 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Missing userId" }, { status: 400 })
   }
   try {
-    const now = new Date().toISOString().slice(0, 10)
-    const completed = await Task.countDocuments({ userId, completed: true })
-    const pending = await Task.countDocuments({ userId, completed: false, $or: [{ deadline: { $gte: now } }, { deadline: "" }, { deadline: null }] })
-    const overdue = await Task.countDocuments({ userId, completed: false, deadline: { $lt: now, $ne: "" } })
-    const appointmentsToday = await Appointment.find({ userId, date: now }).lean()
+    // Use local time for 'now' to avoid timezone conflict
+    const nowDate = new Date()
+    const now =
+      nowDate.getFullYear() +
+      "-" +
+      String(nowDate.getMonth() + 1).padStart(2, "0") +
+      "-" +
+      String(nowDate.getDate()).padStart(2, "0")
 
-    // Upcoming events: nearest deadlines and appointments (max 5)
+    const completed = await Task.countDocuments({ userId, completed: true })
+    const pending = await Task.countDocuments({
+      userId,
+      completed: false,
+      $or: [{ deadline: { $gte: now } }, { deadline: "" }, { deadline: null }],
+    })
+    const overdue = await Task.countDocuments({
+      userId,
+      completed: false,
+      deadline: { $lt: now, $ne: "" },
+    })
+    const appointmentsToday = await Appointment.find({ userId, date: now }).lean()
+    const deadlinesToday = await Task.find({
+      userId,
+      completed: false,
+      deadline: { $eq: now, $ne: "" },
+    }).lean()
+
+    // Upcoming events: nearest deadlines and appointments (max 5), exclude today's deadlines/appointments
     const upcomingTasks = await Task.find({
       userId,
       completed: false,
-      deadline: { $gte: now, $ne: "" }
+      deadline: { $gt: now, $ne: "" },
     })
       .sort({ deadline: 1 })
       .limit(5)
@@ -29,7 +50,7 @@ export async function GET(req: NextRequest) {
 
     const upcomingAppointments = await Appointment.find({
       userId,
-      date: { $gte: now }
+      date: { $gt: now },
     })
       .sort({ date: 1, time: 1 })
       .limit(5)
@@ -37,16 +58,16 @@ export async function GET(req: NextRequest) {
 
     // Merge and sort by date, then time, then deadline
     const events = [
-      ...upcomingTasks.map(t => ({
+      ...upcomingTasks.map((t) => ({
         type: "task",
         title: t.title,
         date: t.deadline,
       })),
-      ...upcomingAppointments.map(a => ({
+      ...upcomingAppointments.map((a) => ({
         type: "appointment",
         title: a.title,
         date: a.date,
-      }))
+      })),
     ]
       .sort((a, b) => {
         if (a.date !== b.date) return a.date.localeCompare(b.date)
@@ -58,8 +79,11 @@ export async function GET(req: NextRequest) {
       completed,
       pending,
       overdue,
-      appointmentsToday,
-      upcomingEvents: events
+      important: {
+        appointmentsToday,
+        deadlinesToday,
+      },
+      upcomingEvents: events,
     })
   } catch (err) {
     return NextResponse.json({ error: "DB error" }, { status: 500 })

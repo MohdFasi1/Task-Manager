@@ -1,20 +1,39 @@
 "use client"
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from "@/components/ui/button"
-import { Calendar, Mail, ListTodo, Star } from "lucide-react"
+import { Calendar, ListTodo, Star } from "lucide-react"
+import { useUser } from "@clerk/nextjs"
 
 const Cards = () => {
   const router = useRouter()
+  const { user } = useUser()
+  const [loading, setLoading] = useState(true)
+  const [data, setData] = useState<any>({
+    pending: 0,
+    completed: 0,
+    important: { appointmentsToday: [], deadlinesToday: [] },
+    upcomingEvents: [],
+    overdue: 0,
+  })
 
-  // Dummy data, replace with real data as needed
-  const pendingTasks = 5
-  const completedTasks = 12
-  const importantAppointments = 2
-  const importantDeadlines = 3
-  const importantEmails = 4
-  const draftEmails = 2
-  const upcomingEvents = 3
+  useEffect(() => {
+    if (!user?.id) return
+    setLoading(true)
+    fetch(`/api/data?userId=${user.id}`)
+      .then(res => res.json())
+      .then(resData => {
+        setData(resData)
+        setLoading(false)
+      })
+      .catch(() => setLoading(false))
+  }, [user?.id])
+
+  const pendingTasks = data.pending
+  const completedTasks = data.completed
+  const importantAppointments = data.important?.appointmentsToday?.length || 0
+  const importantDeadlines = data.important?.deadlinesToday?.length || 0
+  const upcomingEvents = data.upcomingEvents?.length || 0
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -25,45 +44,96 @@ const Cards = () => {
           <h3 className="text-lg font-semibold">Tasks</h3>
         </div>
         <div className="mb-4">
-          <div className="text-sm text-gray-600">Pending: <span className="font-bold">{pendingTasks}</span></div>
-          <div className="text-sm text-gray-600">Completed: <span className="font-bold">{completedTasks}</span></div>
+          <div className="text-sm text-gray-600">Pending: <span className="font-bold">{loading ? "-" : pendingTasks}</span></div>
+          <div className="text-sm text-gray-600">Completed: <span className="font-bold">{loading ? "-" : completedTasks}</span></div>
+          <div className="text-sm text-gray-600">Overdue: <span className="font-bold">{loading ? "-" : data.overdue}</span></div>
         </div>
         <Button variant="outline" onClick={() => router.push("/tasks")}>View All</Button>
       </div>
-      {/* Importants Card */}
+      {/* Today Card */}
       <div className="bg-white rounded shadow p-6 flex flex-col justify-between">
         <div className="flex items-center gap-3 mb-2">
           <Star className="text-yellow-500" />
-          <h3 className="text-lg font-semibold">Importants</h3>
+          <h3 className="text-lg font-semibold">Today</h3>
         </div>
         <div className="mb-4">
-          <div className="text-sm text-gray-600">Appointments: <span className="font-bold">{importantAppointments}</span></div>
-          <div className="text-sm text-gray-600">Deadlines: <span className="font-bold">{importantDeadlines}</span></div>
+          {loading ? (
+            <div className="text-sm text-gray-600">Loading...</div>
+          ) : (
+            <>
+              {data.important?.appointmentsToday?.length > 0 && (
+                <div>
+                  <div className="text-sm font-semibold mb-1">Appointments:</div>
+                  <ul className="mb-2">
+                    {data.important.appointmentsToday.map((a: any, idx: number) => (
+                      <li key={a._id || idx} className="text-sm text-gray-700">
+                        {a.title} {a.time ? `(${a.time})` : ""}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              {data.important.deadlinesToday?.length > 0 && (
+                <div>
+                  <div className="text-sm font-semibold mb-1">Deadlines:</div>
+                  <ul>
+                    {data.important.deadlinesToday.map((d: any, idx: number) => (
+                      <li key={d._id || idx} className="text-sm text-gray-700">
+                        {d.title}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              {(!data.important?.appointmentsToday?.length && !data.important?.deadlinesToday?.length) && (
+                <div className="text-sm text-gray-500">No appointments or deadlines today.</div>
+              )}
+            </>
+          )}
         </div>
-        <Button variant="outline">View Details</Button>
+        <Button variant="outline" onClick={() => router.push("/calendar")}>View Details</Button>
       </div>
-      {/* Emails Card */}
-      <div className="bg-white rounded shadow p-6 flex flex-col justify-between">
-        <div className="flex items-center gap-3 mb-2">
-          <Mail className="text-blue-500" />
-          <h3 className="text-lg font-semibold">Emails</h3>
-        </div>
-        <div className="mb-4">
-          <div className="text-sm text-gray-600">Important: <span className="font-bold">{importantEmails}</span></div>
-          <div className="text-sm text-gray-600">Draft: <span className="font-bold">{draftEmails}</span></div>
-        </div>
-        <Button variant="outline" onClick={() => router.push("/inbox")}>Open Inbox</Button>
-      </div>
-      {/* Upcoming Events Card */}
+      {/* Appointments Card */}
       <div className="bg-white rounded shadow p-6 flex flex-col justify-between">
         <div className="flex items-center gap-3 mb-2">
           <Calendar className="text-green-600" />
-          <h3 className="text-lg font-semibold">Upcoming Events</h3>
+          <h3 className="text-lg font-semibold">Appointments</h3>
         </div>
         <div className="mb-4">
-          <div className="text-sm text-gray-600">Events: <span className="font-bold">{upcomingEvents}</span></div>
+          {data.upcomingEvents.filter((e: any) => e.type === "appointment").length > 0 ? (
+            <ul className="mb-2">
+              {data.upcomingEvents.filter((e: any) => e.type === "appointment").map((event: any, idx: number) => (
+                <li key={idx} className="text-xs text-gray-700">
+                  {event.title} ({event.date}{event.time ? ` ${event.time}` : ""})
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <div className="text-sm text-gray-500">No upcoming appointments.</div>
+          )}
         </div>
-        <Button variant="outline">View Events</Button>
+        <Button variant="outline" onClick={() => router.push("/appointments")}>View All</Button>
+      </div>
+      {/* Deadlines Card */}
+      <div className="bg-white rounded shadow p-6 flex flex-col justify-between">
+        <div className="flex items-center gap-3 mb-2">
+          <ListTodo className="text-red-500" />
+          <h3 className="text-lg font-semibold">Deadlines</h3>
+        </div>
+        <div className="mb-4">
+          {data.upcomingEvents.filter((e: any) => e.type === "task").length > 0 ? (
+            <ul className="mb-2">
+              {data.upcomingEvents.filter((e: any) => e.type === "task").map((event: any, idx: number) => (
+                <li key={idx} className="text-xs text-gray-700">
+                  {event.title} ({event.date}{event.time ? ` ${event.time}` : ""})
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <div className="text-sm text-gray-500">No upcoming deadlines.</div>
+          )}
+        </div>
+        <Button variant="outline" onClick={() => router.push("/tasks")}>View All</Button>
       </div>
     </div>
   )

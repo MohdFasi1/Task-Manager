@@ -24,31 +24,45 @@ export default function RootLayout({
     <ClerkProvider>
       <html lang="en">
         <body className="flex h-screen">
-          {/* Sidebar stays fixed on the left */}
-          <SignedIn>
-            <Sidebar />
-          </SignedIn>
-
-          {/* Main content area */}
-          <div className="flex flex-col flex-1">
-            {/* Header at the top */}
-            <header className="flex justify-end items-center p-4 gap-4 h-16 border-b">
-              <SignedOut> 
+          <SignedOut>
+            <div className="flex flex-col w-full h-full items-center justify-center bg-gray-50">
+              <header className="flex justify-end items-center p-4 gap-4 w-full h-16 border-b">
                 <SignInButton />
                 <SignUpButton>
                   <button className="bg-[#6c47ff] text-white rounded-full font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 cursor-pointer">
                     Sign Up
                   </button>
                 </SignUpButton>
-              </SignedOut>
-              <SignedIn>
+              </header>
+              <main className="flex-1 flex flex-col items-center justify-center w-full">
+                <h1 className="text-3xl font-bold mb-4">Welcome to Task Manager</h1>
+                <p className="text-gray-600 mb-8 text-center max-w-md">
+                  Organize your tasks, appointments, emails, and events in one place. Sign up or sign in to get started!
+                </p>
+                <div className="flex gap-4">
+                  <SignInButton>
+                    <button className="bg-gray-900 text-white rounded-full font-medium text-base h-10 px-5 cursor-pointer">
+                      Sign In
+                    </button>
+                  </SignInButton>
+                  <SignUpButton>
+                    <button className="bg-[#6c47ff] text-white rounded-full font-medium text-base h-10 px-5 cursor-pointer">
+                      Sign Up
+                    </button>
+                  </SignUpButton>
+                </div>
+              </main>
+            </div>
+          </SignedOut>
+          <SignedIn>
+            <Sidebar />
+            <div className="flex flex-col flex-1">
+              <header className="flex justify-end items-center p-4 gap-4 h-16 border-b">
                 <UserButton />
-              </SignedIn>
-            </header>
-
-            {/* Page content */}
-            <main className="pt-4 flex-1 overflow-y-auto">{children}</main>
-          </div>
+              </header>
+              <main className="pt-4 flex-1 overflow-y-auto">{children}</main>
+            </div>
+          </SignedIn>
         </body>
       </html>
     </ClerkProvider>
