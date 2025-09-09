@@ -15,7 +15,6 @@ export default function Sidebar() {
     { name: "Tasks", href: "/tasks", icon: ListTodo },
     { name: "Appointments", href: "/appointments", icon: CalendarDays },
     { name: "Calendar", href: "/calendar", icon: Calendar },
-    { name: "Settings", href: "/settings", icon: Settings },
   ];
 
   return (
