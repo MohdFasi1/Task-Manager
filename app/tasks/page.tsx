@@ -4,7 +4,6 @@ import AddTaskForm from "@/components/tasks/AddTaskForm"
 import { useUser } from "@clerk/nextjs"
 import { Button } from "@/components/ui/button"
 import { MoreVertical, Pencil, Trash2, X } from "lucide-react"
-import { useRef, useState as useMenuState } from "react"
 
 type Task = {
   _id: string

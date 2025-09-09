@@ -35,8 +35,8 @@ const CalendarPage = () => {
         setAppointments(data.appointments || []);
         setDeadlines(data.deadlines || []);
       });
-      
-  }, [currentYear, currentMonth]);
+
+  }, [user?.id, currentYear, currentMonth]);
 
   const daysInMonth = getDaysInMonth(currentYear, currentMonth);
   const firstDayOfWeek = new Date(currentYear, currentMonth, 1).getDay();
