@@ -3,7 +3,7 @@
 
 import { useState } from "react";
 import { cn } from "@/lib/utils";
-import { Home, ListTodo, Settings, Menu, Calendar, CalendarDays } from "lucide-react";
+import { Home, ListTodo, Settings, Menu, Calendar, CalendarDays, CalendarCheck } from "lucide-react";
 import Link from "next/link";
 
 export default function Sidebar() {
@@ -11,6 +11,7 @@ export default function Sidebar() {
 
   const menuItems = [
     { name: "Dashboard", href: "/", icon: Home },
+    { name: "Schedule", href: "/schedule", icon: CalendarCheck },
     { name: "Tasks", href: "/tasks", icon: ListTodo },
     { name: "Appointments", href: "/appointments", icon: CalendarDays },
     { name: "Calendar", href: "/calendar", icon: Calendar },

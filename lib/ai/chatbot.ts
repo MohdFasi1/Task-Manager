@@ -36,8 +36,13 @@ Rules:
 6. If the user wants to **delete an appointment**, respond:
    {"action": "delete_appointment", "id": "..."}
 
-7. If the user is just asking (like "What tasks do I have?"), summarize naturally in text.
-8. Only use JSON for actions, not for summaries.
+7. If the user wants to **edit the schedule** (reorder, reschedule, remove, or insert tasks/appointments), respond:
+   {"action": "update_schedule", "updates": [
+      { "time": "09:30 AM", "title": "Finish report", "label": "Task" },
+      { "time": "11:00 AM", "title": "Doctor Appointment", "label": "Appointment" }
+   ]}
+8. If the user is just asking (like "What tasks do I have?"), summarize naturally in text.
+9. Only use JSON for actions, not for summaries.
 
 
 If theres mutiple tasks or appointments to mention respond in a numbered list and dont add astriks ("*") to the summeries.
