@@ -3,6 +3,16 @@ import React, { useState } from 'react'
 import Day from '@/components/calendar/Day';
 import { useUser } from '@clerk/nextjs';
 
+interface Appointment {
+  date: string;
+  title: string;
+  time: string;
+}
+interface Deadline {
+  deadline: string;
+  title: string;
+}
+
 function getDaysInMonth(year: number, month: number) {
   return new Date(year, month + 1, 0).getDate();
 }
@@ -13,17 +23,19 @@ const CalendarPage = () => {
   const [currentYear, setCurrentYear] = useState(today.getFullYear());
   const [selectedDay, setSelectedDay] = useState<number | null>(today.getDate());
   const { user } = useUser();
-  const [appointments, setAppointments] = useState<any[]>([]);
-  const [deadlines, setDeadlines] = useState<any[]>([]);
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [deadlines, setDeadlines] = useState<Deadline[]>([]);
 
   React.useEffect(() => {
     if (!user?.id) return;
+
     fetch(`/api/calendar?userId=${user.id}&year=${currentYear}&month=${currentMonth}`)
       .then(res => res.json())
       .then(data => {
         setAppointments(data.appointments || []);
         setDeadlines(data.deadlines || []);
       });
+      
   }, [currentYear, currentMonth]);
 
   const daysInMonth = getDaysInMonth(currentYear, currentMonth);

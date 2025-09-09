@@ -20,9 +20,11 @@ const AppointmentPage: React.FC = () => {
 
   useEffect(() => {
     if (!user?.id) return;
+    
     fetch(`/api/appoinments?userId=${user.id}`)
       .then(res => res.json())
       .then(data => setAppointments(data.appointments || []));
+
   }, [showForm]);
 
   const handleDelete = async (id: string) => {
