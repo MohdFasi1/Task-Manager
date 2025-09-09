@@ -13,7 +13,6 @@ interface Appointment {
 const AppointmentPage: React.FC = () => {
   const { user } = useUser();
   const [appointments, setAppointments] = useState<Appointment[]>([]);
-  const [editIdx, setEditIdx] = useState<number | null>(null);
   const [editData, setEditData] = useState<{ title: string; date: string; time: string; id: string }>({ title: '', date: '', time: '', id: '' });
   const [showForm, setShowForm] = useState(false);
   const [showAddForm, setShowAddForm] = useState(false);
@@ -24,7 +23,7 @@ const AppointmentPage: React.FC = () => {
     fetch(`/api/appoinments?userId=${user.id}`)
       .then(res => res.json())
       .then(data => setAppointments(data.appointments || []));
-  }, [user?.id, showForm]);
+  }, [showForm]);
 
   const handleDelete = async (id: string) => {
     await fetch('/api/appoinments', {
@@ -36,7 +35,6 @@ const AppointmentPage: React.FC = () => {
   };
 
   const handleEdit = (idx: number) => {
-    setEditIdx(idx);
     setEditData({
       title: appointments[idx].title,
       date: appointments[idx].date,
@@ -53,7 +51,6 @@ const AppointmentPage: React.FC = () => {
       body: JSON.stringify({ id: editData.id, title: editData.title, date: editData.date, time: editData.time })
     });
     setShowForm(false);
-    setEditIdx(null);
     setEditData({ title: '', date: '', time: '', id: '' });
   };
 

@@ -46,7 +46,7 @@ const TasksPage = () => {
     const res = await fetch("/api/tasks", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id: (task as any)._id, completed: !task.completed })
+      body: JSON.stringify({ id: task._id, completed: !task.completed })
     });
     if (res.ok) {
       setTasks(tasks =>

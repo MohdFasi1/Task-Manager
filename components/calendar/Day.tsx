@@ -8,7 +8,7 @@ interface DayProps {
   appointments: { date: string; title: string; time: string }[];
   deadlines: { deadline: string; title: string }[];
   userId: string;
-  setAppointments: React.Dispatch<React.SetStateAction<any[]>>;
+  setAppointments: React.Dispatch<React.SetStateAction<{ date: string; title: string; time: string }[]>>;
   onAppointmentAdded?: () => void;
 }
 
@@ -20,12 +20,12 @@ const Day: React.FC<DayProps> = ({ selectedDay, currentMonth, currentYear, appoi
 
   const handleAddAppointment = async () => {
     if (!newTitle || !newTime || !cellDate) return;
-    let res = await fetch('/api/appoinments', {
+    const res = await fetch('/api/appoinments', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ date: cellDate, time: newTime, title: newTitle, userId })
     });
-    let data = await res.json();
+    const data = await res.json();
     // Update local state to reflect new appointment
     setAppointments(prev => [...prev, data.appointment]);
     setShowModal(false);

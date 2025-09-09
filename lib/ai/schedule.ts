@@ -51,7 +51,7 @@ try {
   console.log("✅ Parsed schedule:", parsed);
   return parsed;
 } catch (err) {
-  console.error("❌ Failed to parse AI response:", raw);
+  console.error("❌ Failed to parse AI response:", err);
   return [];
 }
 }

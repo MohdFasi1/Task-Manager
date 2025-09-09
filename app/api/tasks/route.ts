@@ -12,7 +12,7 @@ export async function POST(req: NextRequest) {
     const task = await Task.create({ title, priority, deadline, userId, completed: false })
     return NextResponse.json({ success: true, _id: task._id })
   } catch (err) {
-    return NextResponse.json({ error: "DB error" }, { status: 500 })
+    return NextResponse.json({ error: err}, { status: 500 })
   }
 }
 
@@ -27,7 +27,7 @@ export async function GET(req: NextRequest) {
     const tasks = await Task.find({ userId }).lean()
     return NextResponse.json({ tasks })
   } catch (err) {
-    return NextResponse.json({ error: "DB error" }, { status: 500 })
+    return NextResponse.json({ error: err }, { status: 500 })
   }
 }
 
@@ -41,7 +41,7 @@ export async function PATCH(req: NextRequest) {
     await Task.findByIdAndUpdate(id, { completed })
     return NextResponse.json({ success: true, completed })
   } catch (err) {
-    return NextResponse.json({ error: "DB error" }, { status: 500 })
+    return NextResponse.json({ error: err }, { status: 500 })
   }
 }
 
@@ -55,7 +55,7 @@ export async function DELETE(req: NextRequest) {
     await Task.findByIdAndDelete(id)
     return NextResponse.json({ success: true })
   } catch (err) {
-    return NextResponse.json({ error: "DB error" }, { status: 500 })
+    return NextResponse.json({ error: err }, { status: 500 })
   }
 }
 
@@ -69,6 +69,6 @@ export async function PUT(req: NextRequest) {
     await Task.findByIdAndUpdate(id, { title, priority, deadline })
     return NextResponse.json({ success: true })
   } catch (err) {
-    return NextResponse.json({ error: "DB error" }, { status: 500 })
+    return NextResponse.json({ error: err }, { status: 500 })
   }
 }

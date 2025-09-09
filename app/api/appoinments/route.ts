@@ -13,7 +13,7 @@ export async function POST(req: NextRequest) {
     console.log(appointment);
     return NextResponse.json({ success: true, appointment });
   } catch (err) {
-    return NextResponse.json({ error: "DB error" }, { status: 500 });
+    return NextResponse.json({ error: err }, { status: 500 });
   }
 }
 
@@ -28,7 +28,7 @@ export async function GET(req: NextRequest) {
     const appointments = await Appointment.find({ userId }).lean();
     return NextResponse.json({ appointments });
   } catch (err) {
-    return NextResponse.json({ error: "DB error" }, { status: 500 });
+    return NextResponse.json({ error: err }, { status: 500 });
   }
 }
 
@@ -42,7 +42,7 @@ export async function PUT(req: NextRequest) {
     const updated = await Appointment.findByIdAndUpdate(id, { date, time, title }, { new: true });
     return NextResponse.json({ success: true, appointment: updated });
   } catch (err) {
-    return NextResponse.json({ error: "DB error" }, { status: 500 });
+    return NextResponse.json({ error: err }, { status: 500 });
   }
 }
 
@@ -56,6 +56,6 @@ export async function DELETE(req: NextRequest) {
     await Appointment.findByIdAndDelete(id);
     return NextResponse.json({ success: true });
   } catch (err) {
-    return NextResponse.json({ error: "DB error" }, { status: 500 });
+    return NextResponse.json({ error: `DB error ${err}` }, { status: 500 });
   }
 }

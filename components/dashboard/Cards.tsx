@@ -5,11 +5,29 @@ import { Button } from "@/components/ui/button"
 import { Calendar, ListTodo, Star } from "lucide-react"
 import { useUser } from "@clerk/nextjs"
 
+interface Important {
+  appointmentsToday: { _id?: string; title: string; time?: string }[];
+  deadlinesToday: { _id?: string; title: string }[];
+}
+interface UpcomingEvent {
+  type: 'appointment' | 'task';
+  title: string;
+  date: string;
+  time?: string;
+}
+interface DashboardData {
+  pending: number;
+  completed: number;
+  important: Important;
+  upcomingEvents: UpcomingEvent[];
+  overdue: number;
+}
+
 const Cards = () => {
   const router = useRouter()
   const { user } = useUser()
   const [loading, setLoading] = useState(true)
-  const [data, setData] = useState<any>({
+  const [data, setData] = useState<DashboardData>({
     pending: 0,
     completed: 0,
     important: { appointmentsToday: [], deadlinesToday: [] },
@@ -31,9 +49,7 @@ const Cards = () => {
 
   const pendingTasks = data.pending
   const completedTasks = data.completed
-  const importantAppointments = data.important?.appointmentsToday?.length || 0
-  const importantDeadlines = data.important?.deadlinesToday?.length || 0
-  const upcomingEvents = data.upcomingEvents?.length || 0
+
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -65,7 +81,7 @@ const Cards = () => {
                 <div>
                   <div className="text-sm font-semibold mb-1">Appointments:</div>
                   <ul className="mb-2">
-                    {data.important.appointmentsToday.map((a: any, idx: number) => (
+                    {data.important.appointmentsToday.map((a, idx) => (
                       <li key={a._id || idx} className="text-sm text-gray-700">
                         {a.title} {a.time ? `(${a.time})` : ""}
                       </li>
@@ -77,7 +93,7 @@ const Cards = () => {
                 <div>
                   <div className="text-sm font-semibold mb-1">Deadlines:</div>
                   <ul>
-                    {data.important.deadlinesToday.map((d: any, idx: number) => (
+                    {data.important.deadlinesToday.map((d, idx) => (
                       <li key={d._id || idx} className="text-sm text-gray-700">
                         {d.title}
                       </li>
@@ -100,9 +116,9 @@ const Cards = () => {
           <h3 className="text-lg font-semibold">Appointments</h3>
         </div>
         <div className="mb-4">
-          {data.upcomingEvents.filter((e: any) => e.type === "appointment").length > 0 ? (
+          {data.upcomingEvents.filter((e) => e.type === "appointment").length > 0 ? (
             <ul className="mb-2">
-              {data.upcomingEvents.filter((e: any) => e.type === "appointment").map((event: any, idx: number) => (
+              {data.upcomingEvents.filter((e) => e.type === "appointment").map((event, idx) => (
                 <li key={idx} className="text-xs text-gray-700">
                   {event.title} ({event.date}{event.time ? ` ${event.time}` : ""})
                 </li>
@@ -121,9 +137,9 @@ const Cards = () => {
           <h3 className="text-lg font-semibold">Deadlines</h3>
         </div>
         <div className="mb-4">
-          {data.upcomingEvents.filter((e: any) => e.type === "task").length > 0 ? (
+          {data.upcomingEvents.filter((e) => e.type === "task").length > 0 ? (
             <ul className="mb-2">
-              {data.upcomingEvents.filter((e: any) => e.type === "task").map((event: any, idx: number) => (
+              {data.upcomingEvents.filter((e) => e.type === "task").map((event, idx) => (
                 <li key={idx} className="text-xs text-gray-700">
                   {event.title} ({event.date}{event.time ? ` ${event.time}` : ""})
                 </li>

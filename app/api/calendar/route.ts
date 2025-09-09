@@ -28,6 +28,6 @@ export async function GET(req: NextRequest) {
     // console.log({ appointments, deadlines });
     return NextResponse.json({ appointments, deadlines });
   } catch (err) {
-    return NextResponse.json({ error: "DB error" }, { status: 500 });
+    return NextResponse.json({ error: err }, { status: 500 });
   }
 }

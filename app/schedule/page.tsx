@@ -32,7 +32,7 @@ export default function SchedulePage() {
       }
     }
     fetchSchedule();
-  }, [user?.id]);
+  }, []);
 
   const fetchSchedule = async () => {
     if (!user?.id) return;
