@@ -12,8 +12,6 @@ interface MongooseGlobal {
 }
 
 declare global {
-  // allow global `mongoose` cache in dev mode
-  // eslint-disable-next-line no-var
   var mongoose: MongooseGlobal | undefined;
 }
 
